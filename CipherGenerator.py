@@ -324,6 +324,8 @@ class Ui_MainWindow(object):
             if update_map:
                 for i, element in enumerate(cipher):
                     self.keymap.setItem(0, i, QTableWidgetItem(element.upper()))
+                self.keyword_edit.setMaxLength(26)
+
 
             for x in number_text:
                 encrypted_message += cipher[x]
@@ -331,17 +333,40 @@ class Ui_MainWindow(object):
             return encrypted_message
 
         def homophonic_cipher(text, update_map=False):
-            keyword = self.keyword_edit.text()
-            keyword_list = [ord(char) - ord('a') for char in keyword]
-            arr = [[0]*26,[0]*26,[0]*26,[0]*26]
-            #keyword must be 4 letters.
 
-            for i, num in enumerate(keyword_list):
-                arr[i][num] = (i * 26) + num
-                for x in range((25 * i) + 1, (25 * (i + 1) + 1)): #bug in here
-                    arr[i][x % 26] = x
+            if update_map:
+                keyword = self.keyword_edit.text().lower()
+                regex = r'[^a-z]'
+                keyword = re.sub(regex, '', keyword)
+                keyword_list = [ord(char) - ord('a') - 1 for char in keyword]
+                cipher = [[0]*26,[0]*26,[0]*26,[0]*26]
+                #keyword must be 4 letters.
 
-            print(arr)
+                for i, num in enumerate(keyword_list): # creates the list that holds the cipher
+                    cipher[i][num] = (i * 26) + num
+                    for x in range((25 * i) + 1, (26 * (i + 1) + 1)):
+                        cipher[i][(num + x) % 26] = x
+
+                self.keyword_edit.setMaxLength(4)
+                keyword = list(keyword)
+
+                if len(keyword) > 0:
+
+                    for i, char in enumerate(keyword):
+                        self.keymap.setRowCount(i + 1)
+                        item = QtWidgets.QTableWidgetItem()
+                        self.keymap.setVerticalHeaderItem(i, item)
+                        item.setText(char.upper())
+                        for j in range(len(cipher[i])):
+                            self.keymap.setItem(i, j, QTableWidgetItem(str(cipher[i][j])))
+                else:
+                    item = QtWidgets.QTableWidgetItem()
+                    self.keymap.setVerticalHeaderItem(0, item)
+                    for i in range(26):
+                        item = QtWidgets.QTableWidgetItem()
+                        self.keymap.setItem(0, i, item)
+                    
+
 
             pass
 
@@ -385,19 +410,6 @@ class Ui_MainWindow(object):
         self.keyword_edit.textChanged.connect(lambda: updateOutput(update_map=True))
 
 
-        item = QtWidgets.QTableWidgetItem()
-        self.keymap.setVerticalHeaderItem(1, item)
-        item = QtWidgets.QTableWidgetItem()
-        self.keymap.setVerticalHeaderItem(2, item)
-        item = QtWidgets.QTableWidgetItem()
-        self.keymap.setVerticalHeaderItem(3, item)
-        item = QtWidgets.QTableWidgetItem()
-        self.keymap.setVerticalHeaderItem(4, item)
-        item = QtWidgets.QTableWidgetItem()
-        self.keymap.setVerticalHeaderItem(5, item)
-        item = QtWidgets.QTableWidgetItem()
-        self.keymap.setVerticalHeaderItem(6, item)
-
     """End of Changes made to UI"""
 
     def retranslateUi(self, MainWindow):
@@ -407,19 +419,7 @@ class Ui_MainWindow(object):
         self.label_2.setText(_translate("MainWindow", "CipherText"))
         self.keymap.setSortingEnabled(False)
         item = self.keymap.verticalHeaderItem(0)
-        item.setText(_translate("MainWindow", "K"))
-        # item = self.keymap.verticalHeaderItem(1)
-        # item.setText(_translate("MainWindow", "E"))
-        # item = self.keymap.verticalHeaderItem(2)
-        # item.setText(_translate("MainWindow", "Y"))
-        # item = self.keymap.verticalHeaderItem(3)
-        # item.setText(_translate("MainWindow", "W"))
-        # item = self.keymap.verticalHeaderItem(4)
-        # item.setText(_translate("MainWindow", "O"))
-        # item = self.keymap.verticalHeaderItem(5)
-        # item.setText(_translate("MainWindow", "R"))
-        # item = self.keymap.verticalHeaderItem(6)
-        # item.setText(_translate("MainWindow", "D"))
+        item.setText(_translate("MainWindow", ""))
         item = self.keymap.horizontalHeaderItem(0)
         item.setText(_translate("MainWindow", "A"))
         item = self.keymap.horizontalHeaderItem(1)

@@ -66,21 +66,9 @@ class Ui_MainWindow(object):
         self.keymap.setGridStyle(QtCore.Qt.SolidLine)
         self.keymap.setObjectName("keymap")
         self.keymap.setColumnCount(26)
-        self.keymap.setRowCount(7)
+        self.keymap.setRowCount(1)
         item = QtWidgets.QTableWidgetItem()
         self.keymap.setVerticalHeaderItem(0, item)
-        item = QtWidgets.QTableWidgetItem()
-        self.keymap.setVerticalHeaderItem(1, item)
-        item = QtWidgets.QTableWidgetItem()
-        self.keymap.setVerticalHeaderItem(2, item)
-        item = QtWidgets.QTableWidgetItem()
-        self.keymap.setVerticalHeaderItem(3, item)
-        item = QtWidgets.QTableWidgetItem()
-        self.keymap.setVerticalHeaderItem(4, item)
-        item = QtWidgets.QTableWidgetItem()
-        self.keymap.setVerticalHeaderItem(5, item)
-        item = QtWidgets.QTableWidgetItem()
-        self.keymap.setVerticalHeaderItem(6, item)
         item = QtWidgets.QTableWidgetItem()
         self.keymap.setHorizontalHeaderItem(0, item)
         item = QtWidgets.QTableWidgetItem()
@@ -305,9 +293,6 @@ class Ui_MainWindow(object):
 
 
         def caesar_cipher(text, update_map=False):
-            
-            
-
 
             def reorder_list(arr, start):                           # helper function to shift a list by 'start' amount
                 return arr[start:] + arr[:start]
@@ -346,6 +331,18 @@ class Ui_MainWindow(object):
             return encrypted_message
 
         def homophonic_cipher(text, update_map=False):
+            keyword = self.keyword_edit.text()
+            keyword_list = [ord(char) - ord('a') for char in keyword]
+            arr = [[0]*26,[0]*26,[0]*26,[0]*26]
+            #keyword must be 4 letters.
+
+            for i, num in enumerate(keyword_list):
+                arr[i][num] = (i * 26) + num
+                for x in range((25 * i) + 1, (25 * (i + 1) + 1)): #bug in here
+                    arr[i][x % 26] = x
+
+            print(arr)
+
             pass
 
         def polygram_sub_cipher(text, update_map=False):
@@ -387,6 +384,20 @@ class Ui_MainWindow(object):
         self.shift_slider.valueChanged.connect(lambda: updateOutput(update_map=True))
         self.keyword_edit.textChanged.connect(lambda: updateOutput(update_map=True))
 
+
+        item = QtWidgets.QTableWidgetItem()
+        self.keymap.setVerticalHeaderItem(1, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.keymap.setVerticalHeaderItem(2, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.keymap.setVerticalHeaderItem(3, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.keymap.setVerticalHeaderItem(4, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.keymap.setVerticalHeaderItem(5, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.keymap.setVerticalHeaderItem(6, item)
+
     """End of Changes made to UI"""
 
     def retranslateUi(self, MainWindow):
@@ -397,18 +408,18 @@ class Ui_MainWindow(object):
         self.keymap.setSortingEnabled(False)
         item = self.keymap.verticalHeaderItem(0)
         item.setText(_translate("MainWindow", "K"))
-        item = self.keymap.verticalHeaderItem(1)
-        item.setText(_translate("MainWindow", "E"))
-        item = self.keymap.verticalHeaderItem(2)
-        item.setText(_translate("MainWindow", "Y"))
-        item = self.keymap.verticalHeaderItem(3)
-        item.setText(_translate("MainWindow", "W"))
-        item = self.keymap.verticalHeaderItem(4)
-        item.setText(_translate("MainWindow", "O"))
-        item = self.keymap.verticalHeaderItem(5)
-        item.setText(_translate("MainWindow", "R"))
-        item = self.keymap.verticalHeaderItem(6)
-        item.setText(_translate("MainWindow", "D"))
+        # item = self.keymap.verticalHeaderItem(1)
+        # item.setText(_translate("MainWindow", "E"))
+        # item = self.keymap.verticalHeaderItem(2)
+        # item.setText(_translate("MainWindow", "Y"))
+        # item = self.keymap.verticalHeaderItem(3)
+        # item.setText(_translate("MainWindow", "W"))
+        # item = self.keymap.verticalHeaderItem(4)
+        # item.setText(_translate("MainWindow", "O"))
+        # item = self.keymap.verticalHeaderItem(5)
+        # item.setText(_translate("MainWindow", "R"))
+        # item = self.keymap.verticalHeaderItem(6)
+        # item.setText(_translate("MainWindow", "D"))
         item = self.keymap.horizontalHeaderItem(0)
         item.setText(_translate("MainWindow", "A"))
         item = self.keymap.horizontalHeaderItem(1)
@@ -477,6 +488,7 @@ class Ui_MainWindow(object):
         self.actionSave.setText(_translate("MainWindow", "Save"))
 
 if __name__ == "__main__":
+
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()

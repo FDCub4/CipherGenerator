@@ -260,11 +260,11 @@ class Ui_MainWindow(object):
 
         """post QTDesigner add-ons"""
         from PyQt5.QtWidgets import QApplication, QMainWindow, QButtonGroup, QRadioButton, QTableWidget, QPushButton, QVBoxLayout, QWidget, QLineEdit, QHBoxLayout, QTableWidgetItem
-        import re
+        import re, random
         
         
         alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-
+        self.cipher = []
 
 
         #add the radio buttons to a group
@@ -299,9 +299,13 @@ class Ui_MainWindow(object):
             
             shift = int(self.shift_slider.value())
             cipher = reorder_list(alphabet, shift)
-            number_list = [ord(char) - ord('a') for char in text]  # create a shifted list that has numbers instead of letters
+            number_list = [ord(char) - ord('a') for char in text]  # create a list that has numbers instead of letters
             
             if update_map:
+                self.keymap.setRowCount(1)
+                for i in range(self.keymap.model().rowCount()):
+                    item = QtWidgets.QTableWidgetItem()
+                    self.keymap.setVerticalHeaderItem(i, item)
                 for i, element in enumerate(cipher):
                     self.keymap.setItem(0, i, QTableWidgetItem(element.upper()))
 
@@ -322,6 +326,10 @@ class Ui_MainWindow(object):
             number_text = [ord(char) - ord('a') for char in text]
 
             if update_map:
+                self.keymap.setRowCount(1)
+                for i in range(self.keymap.model().rowCount()):
+                    item = QtWidgets.QTableWidgetItem()
+                    self.keymap.setVerticalHeaderItem(i, item)
                 for i, element in enumerate(cipher):
                     self.keymap.setItem(0, i, QTableWidgetItem(element.upper()))
                 self.keyword_edit.setMaxLength(26)
@@ -333,19 +341,20 @@ class Ui_MainWindow(object):
             return encrypted_message
 
         def homophonic_cipher(text, update_map=False):
-
             if update_map:
+                if len(self.keyword_edit.text()) > 4:
+                    self.keyword_edit.setText(self.keyword_edit.text()[:4])
                 keyword = self.keyword_edit.text().lower()
                 regex = r'[^a-z]'
                 keyword = re.sub(regex, '', keyword)
                 keyword_list = [ord(char) - ord('a') - 1 for char in keyword]
-                cipher = [[0]*26,[0]*26,[0]*26,[0]*26]
+                self.cipher = [[0]*26,[0]*26,[0]*26,[0]*26]
                 #keyword must be 4 letters.
 
                 for i, num in enumerate(keyword_list): # creates the list that holds the cipher
-                    cipher[i][num] = (i * 26) + num
+                    self.cipher[i][num] = (i * 26) + num
                     for x in range((25 * i) + 1, (26 * (i + 1) + 1)):
-                        cipher[i][(num + x) % 26] = x
+                        self.cipher[i][(num + x) % 26] = x
 
                 self.keyword_edit.setMaxLength(4)
                 keyword = list(keyword)
@@ -357,18 +366,26 @@ class Ui_MainWindow(object):
                         item = QtWidgets.QTableWidgetItem()
                         self.keymap.setVerticalHeaderItem(i, item)
                         item.setText(char.upper())
-                        for j in range(len(cipher[i])):
-                            self.keymap.setItem(i, j, QTableWidgetItem(str(cipher[i][j])))
+                        for j in range(len(self.cipher[i])):
+                            self.keymap.setItem(i, j, QTableWidgetItem(str(self.cipher[i][j])))
                 else:
-                    item = QtWidgets.QTableWidgetItem()
-                    self.keymap.setVerticalHeaderItem(0, item)
-                    for i in range(26):
+                    self.keymap.setRowCount(1)
+                    for i in range(self.keymap.model().rowCount()):
                         item = QtWidgets.QTableWidgetItem()
-                        self.keymap.setItem(0, i, item)
+                        self.keymap.setVerticalHeaderItem(i, item)
+
+                        for j in range(26):
+                            item = QtWidgets.QTableWidgetItem()
+                            self.keymap.setItem(i, j, item)
                     
+            number_list = [ord(char) - ord('a') for char in text]
+            encrypted_message = ''
+
+            for x in number_list:
+                encrypted_message += str(random.choice([self.cipher[0][x], self.cipher[1][x], self.cipher[2][x], self.cipher[3][x]])) + ' '
 
 
-            pass
+            return encrypted_message
 
         def polygram_sub_cipher(text, update_map=False):
             pass
